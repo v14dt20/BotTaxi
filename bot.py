@@ -38,19 +38,19 @@ async def start_bot_handler(message: Message):
 
 @bot.on.message(payload={"menu": "price"})
 async def main_menu_handler(message: Message):
-    await message.answer("Price")
+    await message.answer("Price", random_id=0)
 
 @bot.on.message(payload={"menu": "mailing"})
 async def main_menu_handler(message: Message):
-    await message.answer("Mailing")
+    await message.answer("Mailing", random_id=0)
 
 @bot.on.message(payload={"menu": "fun"})
 async def main_menu_handler(message: Message):
-    await message.answer("Fun")
+    await message.answer("Fun", random_id=0)
 
 @bot.on.message(payload={"menu": "exit"})
 async def main_menu_handler(message: Message):
-    await message.answer("Exit")
+    await message.answer("Exit", random_id=0)
 
 if __name__ == "__main__":
     bot.run_forever()
