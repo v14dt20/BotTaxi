@@ -17,3 +17,4 @@ vkbottle
 vkbottle-types
 watchgod
 yarl
+psycopg2
