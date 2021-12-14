@@ -18,7 +18,8 @@ class MyStates(BaseStateGroup):
     NONE = 0
     ANS = 1
 
-list_id_users_for_mailing = []
+cursor.execute("SELECT FROM users")
+dict_id_users_for_mailing = cursor.fetchall()
 list_start_bot=["начать", "привет", "старт", "start", "hello", "hi", "здравствуйте", "start"]
 
 @bot.labeler.raw_event(GroupEventType.GROUP_JOIN, dataclass=GroupTypes.GroupJoin)
@@ -44,6 +45,8 @@ async def new_message_handler(event: GroupTypes.MessageNew):
     if not result:
         cursor.execute("INSERT INTO users(id, status) VALUES (%s, %s)", (id, 1))
         connection.commit()
+        cursor.execute("SELECT FROM users")
+        dict_id_users_for_mailing = cursor.fetchall()
 
 #========================================================================================================
 # Menu
@@ -134,11 +137,8 @@ async def mail_handler(message: Message):
 
 @bot.on.message(state=MyStates.NONE)
 async def get_mail_handler(message: Message):
-    cursor.execute("SELECT id FROM users")
-    list_id_users_for_mailing = cursor.fetchone()
-    for id_user in list_id_users_for_mailing:
-        cursor.execute(f"SELECT status FROM users WHERE id = {id_user}")
-        if cursor.fetchone()[0] == 1:
+    for id_user in dict_id_users_for_mailing:
+        if dict_id_users_for_mailing[id_user] == 1:
             await bot.api.messages.send(
                 peer_id=id_user,
                 message=f"{message.text}\n\nЕсли не хотите получать рассылки, то отключите их в меню либо пропишите команду \"/mailoff\"",
@@ -148,28 +148,21 @@ async def get_mail_handler(message: Message):
 
 @bot.on.message(payload={"menu": "admin_check"})
 async def check_mail_handler(message: Message):
-    cursor.execute("SELECT id FROM users")
     list_users_mail = []
-    list_id_users_for_mailing = cursor.fetchone()
-
-    for user in list_id_users_for_mailing:
+    for user in dict_id_users_for_mailing:
         arr = await bot.api.users.get(user)
-        cursor.execute(f"SELECT status FROM users WHERE id = {user}")
-        if cursor.fetchone()[0] == 1:
+        if dict_id_users_for_mailing[user] == 1:
             list_users_mail.append(f"{arr[0].first_name} {arr[0].last_name} @id{user} - подписан")
-        else:
+        elif dict_id_users_for_mailing[user] == 0:
             list_users_mail.append(f"{arr[0].first_name} {arr[0].last_name} @id{user} - не подписан")
     await message.answer('\n'.join(list_users_mail))
 
 @bot.on.message(payload={"mailing": "subscribe"})
 async def mail_subscribe_handler(message: Message):
-    cursor.execute("SELECT id FROM users")
-    list_id_users_for_mailing = cursor.fetchone()
-
-    cursor.execute(f"SELECT status FROM users WHERE id = {message.from_id}")
-    if cursor.fetchone()[0] == 1:
+    if dict_id_users_for_mailing[message.from_id] == 1:
         await message.answer("Вы и так подписаны на рассылку")
     else:
+        dict_id_users_for_mailing[message.from_id] = 1
         cursor.execute(f"UPDATE users SET status = {1} WHERE id = {message.from_id}")
         connection.commit()
         await message.answer("Спасибо, я подписал вас на рассылку")
@@ -177,14 +170,11 @@ async def mail_subscribe_handler(message: Message):
 @bot.on.message(payload={"mailing": "off"})
 @bot.on.message(command="mailoff")
 async def mail_off_handler(message: Message):
-    cursor.execute("SELECT id FROM users")
-    list_id_users_for_mailing = cursor.fetchone()
-
-    cursor.execute(f"SELECT status FROM users WHERE id = {message.from_id}")
-    if cursor.fetchone()[0] == 0:
+    if dict_id_users_for_mailing[message.from_id] == 0:
         await message.answer("Вы и так не подписаны на рассылку")
     else:
-        cursor.execute(f"UPDATE users SET status = {0} WHERE id = {message.from_id}")
+        dict_id_users_for_mailing[message.from_id] = 0
+        cursor.execute(f"UPDATE users SET status = {1} WHERE id = {message.from_id}")
         connection.commit()
         await message.answer("Я отписал вас от рассылки")
 
