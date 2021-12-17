@@ -27,14 +27,14 @@ list_start_bot=["начать", "привет", "старт", "start", "hello", 
 async def join_handler(event: GroupTypes.GroupJoin):
     try:
         await bot.api.messages.send(user_id = event.object.user_id, message="Спасибо за подписку))))", attachment="video-209400635_456239053", random_id=0)
-    except VKAPIError[30]:
+    except VKAPIError[901]:
         pass
 
 @bot.labeler.raw_event(GroupEventType.GROUP_LEAVE, dataclass=GroupTypes.GroupLeave)
 async def leave_handler(event: GroupTypes.GroupLeave):
     try:
         await bot.api.messages.send(user_id = event.object.user_id, message="Очень жаль, что вы от нас ушли. Но это ваш выбор, я не могу ничего сделать(((", attachment="video-209400635_456239051", random_id=0)
-    except VKAPIError[30]:
+    except VKAPIError[901]:
         pass
 
 @bot.labeler.raw_event(GroupEventType.MESSAGE_NEW, dataclass=GroupTypes.MessageNew)
