@@ -113,7 +113,7 @@ async def main_menu_handler(message: Message):
     key.add(Text("Заказ через диспетчера", {"price": "operator"}))
     key.add(Text("Заказ через приложение", {"price": "app"}))
     key.row()
-    key.add(Text("Выход", payload={"menu": "exit"}), color=KeyboardButtonColor.NEGATIVE)
+    key.add(Text("Выход", payload={"menu": "main"}), color=KeyboardButtonColor.NEGATIVE)
 
     await message.answer("Как вы хотите сделать заказ?", keyboard=key)
 
