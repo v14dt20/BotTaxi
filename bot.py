@@ -80,7 +80,7 @@ async def start_bot_handler(message: Message):
 
 Я ещё совсем молодой&#128118;, поэтому некоторые слова я могу не понять, старайтесь пользоваться кнопками. Но я обещаю, что буду учиться расспозновать как можно больше ваших сообщений. Спасибо за понимание
 
-У нас есть собственное приложение для заказа такси, за каждый заказ начисляются бонусы, которыми можно оплачивать поездку до 100%! К сожалению пока доступно только в GooglePlay, но мы работаем над тем, чтобы и AppStore его принял) 
+У нас есть собственное мобильное приложение для заказа такси: https://play.google.com/store/apps/details?id=ru.taximaster.tmtaxicaller.id1583. К сожалению пока доступно только в GooglePlay, но мы работаем над тем, чтобы и AppStore его принял) 
 
 Если вы нашли какую-то ошибку или хотите что-то добавить в меня, то введите команду "/ansdev", мой создатель рассмотрит ваш вопрос и попытается его решить
         """,
@@ -106,10 +106,16 @@ async def main_menu_handler(message: Message):
     await message.answer("Основные команды, которые я знаю", keyboard=key)
 
 @bot.on.message(payload={"menu": "price"})
+@bot.on.message(text="цены")
 async def main_menu_handler(message: Message):
-    with open('price.txt', 'r', encoding='utf-8') as file:
-        price = file.readlines()
-        await message.answer(''.join(price), random_id=0)
+    key = Keyboard()
+
+    key.add(Text("Заказ через диспетчера", {"price": "operator"}))
+    key.add(Text("Заказ через приложение", {"price": "app"}))
+    key.row()
+    key.add(Text("Выход", payload={"menu": "exit"}), color=KeyboardButtonColor.NEGATIVE)
+
+    await message.answer("Как вы хотите сделать заказ?", keyboard=key)
 
 @bot.on.message(payload={"menu": "mailing"})
 async def main_menu_handler(message: Message):
@@ -241,5 +247,28 @@ async def ans(message: Message):
     await bot.api.messages.send(user_id=403603979, message=f"\"{message.text}\" от @id{message.from_id}", random_id=0)
     await bot.state_dispenser.delete(message.peer_id)
     await message.answer ("Спасибо за обращение! Так я стану лучше")
+
+#========================================================================================================
+# Price
+#========================================================================================================
+
+@bot.on.message(payload={"price": "operator"})
+async def price_operator_handler(message: Message):
+    with open("price.txt", "r", encoding="utf-8") as file:
+        price = file.readlines()
+    
+    await message.answear(''.join(price))
+
+@bot.on.message(payload={"price": "app"})
+async def price_app_handler(message: Message):
+    await message.answear(
+        """
+        В черте г.Верещагино - от 100 рублей (входит - 3 км. пути, 5 мин. ожидания)
+Далее
+По городу - 15 руб./км.
+За город - 20 руб./км.
+Ожидание - 5 руб./мин.
+        """
+    )
 
 bot.run_forever()
