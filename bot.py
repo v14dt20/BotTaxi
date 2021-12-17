@@ -257,11 +257,11 @@ async def price_operator_handler(message: Message):
     with open("price.txt", "r", encoding="utf-8") as file:
         price = file.readlines()
     
-    await message.answear(''.join(price))
+    await message.answer(''.join(price))
 
 @bot.on.message(payload={"price": "app"})
 async def price_app_handler(message: Message):
-    await message.answear(
+    await message.answer(
         """
         В черте г.Верещагино - от 100 рублей (входит - 3 км. пути, 5 мин. ожидания)
 Далее
