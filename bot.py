@@ -27,14 +27,14 @@ list_start_bot=["начать", "привет", "старт", "start", "hello", 
 async def join_handler(event: GroupTypes.GroupJoin):
     try:
         await bot.api.messages.send(user_id = event.object.user_id, message="Спасибо за подписку))))", attachment="video-209400635_456239053", random_id=0)
-    except VKAPIError[901]:
+    except VKAPIError[30]:
         pass
 
 @bot.labeler.raw_event(GroupEventType.GROUP_LEAVE, dataclass=GroupTypes.GroupLeave)
 async def leave_handler(event: GroupTypes.GroupLeave):
     try:
         await bot.api.messages.send(user_id = event.object.user_id, message="Очень жаль, что вы от нас ушли. Но это ваш выбор, я не могу ничего сделать(((", attachment="video-209400635_456239051", random_id=0)
-    except VKAPIError[901]:
+    except VKAPIError[30]:
         pass
 
 @bot.labeler.raw_event(GroupEventType.MESSAGE_NEW, dataclass=GroupTypes.MessageNew)
@@ -54,6 +54,7 @@ async def new_message_handler(event: GroupTypes.MessageNew):
 Если хотите отказаться от неё, просто в меню "Рассылки" выберите "Отказаться от рассылки" или введите команду "/mailoff", я не обижусь))) Подписаться на рассылку можно также через меню "Рассылка" """, 
             random_id=0
             )
+
 
 #========================================================================================================
 # Menu
@@ -270,5 +271,13 @@ async def price_app_handler(message: Message):
 Ожидание - 5 руб./мин.
         """
     )
+
+@bot.labeler.message(text="<str_buy>")
+async def buy_handler(message: Message, str_buy):
+    list_str = str_buy.lower().split()
+
+    if list_str.count("заказать") != 0 or list_str.count("оформить") != 0 or (list_str.count("нужна") and list_str.count("машина") != 0) or list_str.count("предзаказ") != 0:
+        await message.answer("Здраввствуйте! Заказать машину можно либо по телефону +7 342 543-33-33, либо через мобильное приложение https://play.google.com/store/apps/details?id=ru.taximaster.tmtaxicaller.id1583. Через группу заказы не оформляются")
+
 
 bot.run_forever()
